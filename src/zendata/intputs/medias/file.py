@@ -1,10 +1,11 @@
 from pydantic import Field, HttpUrl
 from pathlib import Path
 from typing import Union, Optional
-from ..base import BaseInput
+from ..base import BaseInput, TypeInput
 
 
 class File(BaseInput):
+    type = TypeInput.FILE.value
     id: str = Field(..., description="Unique file ID")
     source: str = Field(
         ..., description="Source of the file (URL, file system, upload, etc.)"
