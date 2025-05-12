@@ -17,3 +17,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build]
 sources = ["src"]
+
+[dependency-groups]
+tests = [
+    "pytest>=8.3.5",
+]
