@@ -10,6 +10,7 @@ class TypeInput(str, Enum):
     TEXT = "text"
     AUDIO = "audio"
     VIDEO = "video"
+    FILE = "file"
 
 
 class BaseInput(BaseModel):
