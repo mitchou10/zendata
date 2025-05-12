@@ -1,5 +1,5 @@
 from pydantic import Field, model_validator
-from ..files import File
+from .file import File
 
 
 class Audio(File):

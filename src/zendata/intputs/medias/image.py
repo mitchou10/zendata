@@ -1,5 +1,5 @@
 from pydantic import Field
-from ..files import File
+from .file import File
 
 
 class Image(File):
