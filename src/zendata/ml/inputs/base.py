@@ -1,4 +1,5 @@
 from uuid import uuid4
+from typing import Optional
 from pydantic import BaseModel, Field
 import time
 
@@ -11,3 +12,4 @@ class BaseInput(BaseModel):
     created_at: int = Field(
         default_factory=lambda: int(time.time()), description="Timestamp Unix"
     )
+    extras: Optional[dict] = Field(None, description="Extras for any informations")
