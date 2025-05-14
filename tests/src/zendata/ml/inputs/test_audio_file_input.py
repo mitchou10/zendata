@@ -1,7 +1,7 @@
 from zendata.ml.inputs.audio import Audio
 
 
-def test_instanciate_base_input():
+def test_instanciate_audio_input():
     actual = Audio(
         frames=50000,
         channels=1,

@@ -1,7 +1,7 @@
 from zendata.ml.inputs.file import File
 
 
-def test_instanciate_base_input():
+def test_instanciate_file_input():
     actual = File(
         type="pdf",
         source="test",

@@ -1,7 +1,7 @@
 from zendata.ml.inputs.image import Image
 
 
-def test_instanciate_base_input():
+def test_instanciate_image_input():
     actual = Image(
         width=23,
         height=23,
