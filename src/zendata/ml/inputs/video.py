@@ -3,6 +3,7 @@ from .file import File
 
 
 class Video(File):
+    type: str = "video"
     frames: int = Field(..., description="Number of frames in the video file")
     width: int = Field(..., description="Width of the video in pixels")
     height: int = Field(..., description="Height of the video in pixels")
