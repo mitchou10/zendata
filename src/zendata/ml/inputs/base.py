@@ -1,0 +1,13 @@
+from uuid import uuid4
+from pydantic import BaseModel, Field
+import time
+
+
+class BaseInput(BaseModel):
+    id: str = Field(
+        default_factory=lambda: uuid4().hex, description="ID unique de l’input"
+    )
+    type: str = Field(..., description="Type générique, ex: 'text', 'image', …")
+    created_at: int = Field(
+        default_factory=lambda: int(time.time()), description="Timestamp Unix"
+    )
