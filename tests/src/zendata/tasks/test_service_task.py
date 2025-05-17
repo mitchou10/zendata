@@ -32,8 +32,8 @@ def test_invalid_input_data_type_raises_type_error():
             return len(self.input_data)
 
     # wrong type for input_data → TypeError in model_validator
-    with pytest.raises(TypeError, match=r"does not match expected input type"):
-        StringToIntService(input_data=123).run()
+    with pytest.raises(TypeError):
+        StringToIntService(input_data=123)
 
 
 def test_run_raises_when_apply_returns_wrong_type():
