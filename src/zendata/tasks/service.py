@@ -12,7 +12,7 @@ class BaserService(BaseTask, ABC):
       - runtime checks of input/output in `run`
     """
 
-    input_data: Any = Field(..., description="Data to process")
+    input_data: Optional[Any] = Field(None, description="Data to process")
     output_data: Optional[Any] = Field(None, description="Result of processing")
 
     @model_validator(mode="after")
