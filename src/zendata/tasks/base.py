@@ -10,6 +10,22 @@ from pydantic import (
     model_validator,
     field_serializer,
 )
+import importlib
+from typing import Type, Any
+
+
+def deserialize_type(path: str) -> Type[Any]:
+    """
+    Reconstitue une classe à partir de son chemin 'module.submodule.ClassName'.
+    """
+    if not path:
+        return None
+    module_path, class_name = path.rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    try:
+        return getattr(module, class_name)
+    except AttributeError:
+        raise ImportError(f"Cannot import name {class_name} from module {module_path}")
 
 
 class TaskStatus(str, Enum):
@@ -36,8 +52,8 @@ class BaseTask(BaseModel):
         description="Created timestamp",
     )
     updated_at: Optional[int] = Field(None, description="Last updated timestamp")
-    input: Optional[Type[Any]] = Field(None, description="Input Type")
-    output: Optional[Type[Any]] = Field(None, description="Output Type")
+    input: Type[Any] = Field(None, description="Input Type")
+    output: Type[Any] = Field(None, description="Output Type")
     error: Optional[str] = Field(None, description="Error message if task failed")
     extras: Dict[str, Any] = Field(
         default_factory=dict, description="Additional fields not defined in the model"
@@ -47,11 +63,11 @@ class BaseTask(BaseModel):
 
     @field_serializer("input")
     def serialize_input(self, v: Type[Any], _info):
-        return v.__name__ if v else None
+        return f"{v.__module__}.{v.__name__}" if v else None
 
     @field_serializer("output")
     def serialize_output(self, v: Type[Any], _info):
-        return v.__name__ if v else None
+        return f"{v.__module__}.{v.__name__}" if v else None
 
     @field_validator("input", "output", mode="before")
     @classmethod
@@ -64,4 +80,16 @@ class BaseTask(BaseModel):
     @classmethod
     def set_updated_at(cls, values):
         values["updated_at"] = int(datetime.now().timestamp())
+        return values
+
+    @model_validator(mode="before")
+    @classmethod
+    def deserialize_types(cls, values):
+
+        inp = values.get("input")
+        out = values.get("output")
+        if isinstance(inp, str):
+            values["input"] = deserialize_type(inp)
+        if isinstance(out, str):
+            values["output"] = deserialize_type(out)
         return values

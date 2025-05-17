@@ -32,14 +32,14 @@ def test_percentage_bounds():
 
 def test_input_output_type_validation():
     # input/output must be a type or None
+    with pytest.raises(ValidationError):
+        BaseTask(name="test", input="not_a_type", output=str)
     with pytest.raises(TypeError):
-        BaseTask(name="test", input="not_a_type")
-    with pytest.raises(TypeError):
-        BaseTask(name="test", output=123)
+        BaseTask(name="test", intput=str, output=123)
 
 
 def test_updated_at_is_set_and_refreshed():
-    task1 = BaseTask(name="test")
+    task1 = BaseTask(name="test", input=str, output=str)
     old_updated = task1.updated_at
 
     # simulate a small delay then re-validate
@@ -53,8 +53,8 @@ def test_updated_at_is_set_and_refreshed():
 def test_serialization_of_input_output():
     task = BaseTask(input=str, output=dict)
     dumped = task.model_dump()
-    assert dumped["input"] == "str"
-    assert dumped["output"] == "dict"
+    assert dumped["input"] == "builtins.str"
+    assert dumped["output"] == "builtins.dict"
 
 
 def test_error_field():
