@@ -114,3 +114,132 @@ def test_invalid_class_in_valid_module_raises_import_error():
     assert "Cannot import name NonExistentClass from module builtins" in str(
         excinfo.value
     )
+
+
+def test_set_status():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status(status=TaskStatus.COMPLETED.value)
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.COMPLETED.value
+
+
+def test_set_status_to_created():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_created()
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.CREATED.value
+
+
+def test_set_status_to_started():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_started()
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.STARTED.value
+
+
+def test_set_status_to_in_progress():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_in_progress()
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.IN_PROGRESS.value
+
+
+def test_set_status_to_completed():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_completed()
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.COMPLETED.value
+
+
+def test_set_status_to_failed():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_failed(error="test")
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.FAILED.value
+    assert task.error == "test"
+
+
+def test_set_status_to_retrying():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_retrying()
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.RETRYING.value
+
+
+def test_set_status_to_canceled():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_canceled(error="test")
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.CANCELED.value
+    assert task.error == "test"
+
+
+def test_set_status_to_timeout():
+    task = BaseTask(
+        name="Test Task",
+        status=TaskStatus.STARTED,
+        percentage=0.5,
+        input=str,
+        output=dict,
+    )
+    actual_updated_at = task.updated_at
+    task.set_status_to_timeout(error="test")
+    assert actual_updated_at <= task.updated_at
+    assert task.status == TaskStatus.TIMEOUT.value
+    assert task.error == "test"
