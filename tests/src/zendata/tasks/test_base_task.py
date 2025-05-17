@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from zendata.tasks.base import BaseTask, TaskStatus
+from zendata.tasks.base import BaseTask, TaskStatus, deserialize_type
 
 
 def test_base_task_creation():
@@ -60,3 +60,57 @@ def test_serialization_of_input_output():
 def test_error_field():
     task = BaseTask(error="Something went wrong")
     assert task.error == "Something went wrong"
+
+
+# Define a dummy class in this test module for testing
+class DummyClass:
+    pass
+
+
+def test_deserialize_builtin_type():
+    # Test that built-in types can be deserialized
+    t = deserialize_type("builtins.str")
+    assert t is str
+    t = deserialize_type("builtins.int")
+    assert t is int
+
+
+def test_deserialize_standard_library_type():
+    # Test a standard library class (datetime.datetime)
+    t = deserialize_type("datetime.datetime")
+    import datetime
+
+    assert t is datetime.datetime
+
+
+def test_deserialize_custom_class_in_test_module():
+    # Use __name__ to reference this test module
+    module_path = __name__
+    class_name = "DummyClass"
+    path = f"{module_path}.{class_name}"
+    t = deserialize_type(path)
+    assert t is DummyClass
+
+
+def test_empty_path_returns_none():
+    # Passing an empty string should return None
+    assert deserialize_type("") is None
+    assert deserialize_type(None) is None  # type: ignore
+
+
+def test_invalid_module_raises_import_error():
+    with pytest.raises(ImportError) as excinfo:
+        deserialize_type("nonexistent_module.Class")
+    assert "Cannot import name" in str(excinfo.value) or "No module named" in str(
+        excinfo.value
+    )
+
+
+def test_invalid_class_in_valid_module_raises_import_error():
+    # Valid module but class does not exist
+    module_path = "builtins"
+    with pytest.raises(ImportError) as excinfo:
+        deserialize_type(f"{module_path}.NonExistentClass")
+    assert "Cannot import name NonExistentClass from module builtins" in str(
+        excinfo.value
+    )
