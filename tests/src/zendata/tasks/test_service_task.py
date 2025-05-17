@@ -1,51 +1,77 @@
 import pytest
+from unittest.mock import Mock
 from typing import Any, Type
-from zendata.tasks.service import (
-    BaserService,
-)  # Ajuste ce chemin selon la structure de ton projet
+
+from zendata.tasks.service import Service, Task, TaskStatus, BaseTask
 
 
-def test_good_service_runs_and_sets_output_data():
-    class GoodService(BaserService):
-        input: Type[str] = str
-        output: Type[int] = int
-
-        def apply(self) -> int:
-            # input_data is provided via the field
-            return len(self.input_data)
-
-    # correct input_data type
-    svc = GoodService(input_data="hello")
-    result = svc.run()
-    assert result == 5
-    # output_data must be set on the instance
-    assert svc.output_data == 5
-    assert isinstance(svc.output_data, int)
+class DummyTask(BaseTask):
+    input: Type[int] = int
+    output: Type[str] = str
 
 
-def test_invalid_input_data_type_raises_type_error():
-    class StringToIntService(BaserService):
-        input: Type[str] = str
-        output: Type[int] = int
+class DummyService(Service):
+    def apply(self, task: Task, *args, **kwargs) -> Task:
+        task.output_data = str(task.input_data * 2)
+        return task
 
-        def apply(self) -> int:
-            return len(self.input_data)
 
-    # wrong type for input_data → TypeError in model_validator
+def test_run_successful_task():
+    callback = Mock()
+    service = DummyService(task_definition=DummyTask(), name="dummy", callback=callback)
+
+    result_task = service.run(3, id="123")
+
+    print(result_task.error)
+    print(79 * "*")
+    assert result_task.status == TaskStatus.COMPLETED.value
+    assert result_task.input_data == 3
+    assert result_task.output_data == "6"
+    assert result_task.error is None
+    assert result_task.id == "123"
+
+    # Callback should have been called multiple times
+    assert callback.call_count >= 3  # CREATED, STARTED, IN_PROGRESS, COMPLETED
+
+
+def test_run_invalid_input_type():
+    callback = Mock()
+    service = DummyService(task_definition=DummyTask(), name="dummy", callback=callback)
+
     with pytest.raises(TypeError):
-        StringToIntService(input_data=123)
+        service.run("not-an-int")
 
 
-def test_run_raises_when_apply_returns_wrong_type():
-    class BadOutputService(BaserService):
-        input: Type[str] = str
-        output: Type[int] = int
+def test_run_invalid_output_type():
+    class BadOutputService(Service):
+        def apply(self, task: Task, *args, **kwargs):
+            task.output_data = 123
+            return task  # Not a string (expected output)
 
-        def apply(self) -> Any:
-            # deliberately return a wrong type (float)
-            return 3.14
+    callback = Mock()
+    service = BadOutputService(
+        task_definition=DummyTask(), name="bad_output", callback=callback
+    )
 
-    svc = BadOutputService(input_data="abc")
-    # run() should raise TypeError because 3.14 is not an int
-    with pytest.raises(TypeError, match=r"does not match expected output type"):
-        svc.run()
+    result_task = service.run(2)
+
+    assert result_task.status == TaskStatus.FAILED.value
+    assert "does not match expected output type" in result_task.error
+    assert result_task.output_data is None
+
+
+def test_run_apply_raises_exception():
+    class ExplodingService(Service):
+        def apply(self, task: Task, *args, **kwargs):
+            raise RuntimeError("boom")
+
+    callback = Mock()
+    service = ExplodingService(
+        task_definition=DummyTask(), name="explode", callback=callback
+    )
+
+    result_task = service.run(4)
+
+    assert result_task.status == TaskStatus.FAILED.value
+    assert "boom" in result_task.error
+    assert result_task.output_data is None

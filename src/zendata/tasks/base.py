@@ -93,3 +93,37 @@ class BaseTask(BaseModel):
         if isinstance(out, str):
             values["output"] = deserialize_type(out)
         return values
+
+    def update_updated_at(self):
+        self.updated_at = int(datetime.now().timestamp())
+
+    def set_status(self, status: TaskStatus, error: str = None):
+        self.status = status
+        self.update_updated_at()
+        if error:
+            self.error = error
+
+    def set_status_to_created(self):
+        self.set_status(TaskStatus.CREATED.value)
+
+    def set_status_to_started(self):
+        self.set_status(TaskStatus.STARTED.value)
+
+    def set_status_to_in_progress(self):
+        self.set_status(TaskStatus.IN_PROGRESS.value)
+
+    def set_status_to_completed(self):
+        self.percentage = 1
+        self.set_status(TaskStatus.COMPLETED.value)
+
+    def set_status_to_failed(self, error: str):
+        self.set_status(TaskStatus.FAILED.value, error=error)
+
+    def set_status_to_retrying(self, error: str = None):
+        self.set_status(TaskStatus.RETRYING.value, error=error)
+
+    def set_status_to_canceled(self, error: str):
+        self.set_status(TaskStatus.CANCELED.value, error=error)
+
+    def set_status_to_timeout(self, error: str):
+        self.set_status(TaskStatus.TIMEOUT.value, error=error)
