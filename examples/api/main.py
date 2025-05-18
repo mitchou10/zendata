@@ -52,7 +52,7 @@ health = Health(
     dependencies=[
         Health(
             name="service-second",
-            status_code=500,
+            status_code=503,
             status="unhealthy",
             error="Bad request",
         )
