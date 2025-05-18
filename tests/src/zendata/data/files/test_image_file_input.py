@@ -1,4 +1,4 @@
-from zendata.ml.inputs.image import Image
+from zendata.data.files.image import Image
 
 
 def test_instanciate_image_input():

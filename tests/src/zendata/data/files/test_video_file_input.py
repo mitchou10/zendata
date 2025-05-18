@@ -1,4 +1,4 @@
-from zendata.ml.inputs.video import Video
+from zendata.data.files.video import Video
 
 
 def test_instanciate_video_input():

@@ -1,7 +1,7 @@
-from zendata.ml.inputs.base import BaseInput
+from zendata.data.base import BaseData
 
 
 def test_instanciate_base_input():
-    actual = BaseInput(type="input")
+    actual = BaseData(type="input")
     assert actual.id is not None
     assert isinstance(actual.created_at, int)
