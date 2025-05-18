@@ -1,10 +1,10 @@
 from pydantic import Field, HttpUrl
 from pathlib import Path
 from typing import Union, Optional
-from .base import BaseInput
+from zendata.data.base import BaseData
 
 
-class File(BaseInput):
+class File(BaseData):
     source: str = Field(
         ..., description="Source of the file (URL, file system, upload, etc.)"
     )

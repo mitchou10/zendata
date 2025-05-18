@@ -1,4 +1,4 @@
-from zendata.ml.inputs.file import File
+from zendata.data.files.file import File
 
 
 def test_instanciate_file_input():

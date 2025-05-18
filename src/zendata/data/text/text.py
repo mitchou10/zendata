@@ -1,8 +1,8 @@
 from typing import Literal
-from .base import BaseInput
+from ..base import BaseData
 from pydantic import Field
 
 
-class TextInput(BaseInput):
+class TextData(BaseData):
     type: Literal["text"] = "text"
     text: str = Field(..., description="Raw text")

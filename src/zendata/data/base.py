@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 import time
 
 
-class BaseInput(BaseModel):
+class BaseData(BaseModel):
     id: str = Field(
         default_factory=lambda: uuid4().hex, description="ID unique de l’input"
     )

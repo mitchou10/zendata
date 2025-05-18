@@ -1,4 +1,4 @@
-from zendata.ml.inputs.audio import Audio
+from zendata.data.files.audio import Audio
 
 
 def test_instanciate_audio_input():
