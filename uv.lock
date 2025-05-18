@@ -37,7 +37,6 @@ wheels = [
 ]
 
 [[package]]
-
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -108,7 +107,6 @@ wheels = [
 ]
 
 [[package]]
-
 name = "iniconfig"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -228,7 +226,6 @@ wheels = [
 ]
 
 [[package]]
-
 name = "typing-extensions"
 version = "4.13.2"
 source = { registry = "https://pypi.org/simple" }
@@ -263,7 +260,6 @@ wheels = [
 ]
 
 [[package]]
-
 name = "zendata"
 version = "0.1.0"
 source = { editable = "." }
@@ -276,7 +272,6 @@ examples = [
     { name = "fastapi" },
     { name = "uvicorn" },
 ]
-
 tests = [
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -290,8 +285,8 @@ examples = [
     { name = "fastapi", specifier = ">=0.115.12" },
     { name = "uvicorn", specifier = ">=0.34.2" },
 ]
-
 tests = [
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-cov", specifier = ">=6.1.1" },
 ]
+version = []
