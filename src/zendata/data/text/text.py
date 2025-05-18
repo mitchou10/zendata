@@ -3,6 +3,6 @@ from ..base import BaseData
 from pydantic import Field
 
 
-class TextInput(BaseData):
+class TextData(BaseData):
     type: Literal["text"] = "text"
     text: str = Field(..., description="Raw text")
