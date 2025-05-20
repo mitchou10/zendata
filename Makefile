@@ -16,7 +16,7 @@ help:
 install:
 	@echo "🔧 Installing dependencies..."
 	curl -LsSf https://astral.sh/uv/install.sh | sh
-	uv sync --group test
+	uv sync --group tests
 
 test: install
 	@echo "🧪 Running tests..."
