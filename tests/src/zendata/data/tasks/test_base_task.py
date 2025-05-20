@@ -1,21 +1,24 @@
+from typing import Optional
 import pytest
-from pydantic import ValidationError
-from zendata.data.tasks.base import BaseTask, TaskStatus, deserialize_type
+from pydantic import ValidationError, BaseModel
+from zendata.data.tasks.base import BaseTask, TaskStatus
 
+class DummyBaseModel(BaseModel):
+    test: Optional[str] = None
 
 def test_base_task_creation():
     task = BaseTask(
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     assert task.name == "Test Task"
     assert task.status == TaskStatus.STARTED
     assert 0.0 <= task.percentage <= 1.0
-    assert task.input is str
-    assert task.output is dict
+    assert isinstance(task.input, BaseModel)
+    assert isinstance(task.output, BaseModel)
     assert task.error is None
     assert isinstance(task.id, str)
     assert isinstance(task.created_at, int)
@@ -34,12 +37,12 @@ def test_input_output_type_validation():
     # input/output must be a type or None
     with pytest.raises(ValidationError):
         BaseTask(name="test", input="not_a_type", output=str)
-    with pytest.raises(TypeError):
+    with pytest.raises(ValidationError):
         BaseTask(name="test", intput=str, output=123)
 
 
 def test_updated_at_is_set_and_refreshed():
-    task1 = BaseTask(name="test", input=str, output=str)
+    task1 = BaseTask(name="test", input=DummyBaseModel(), output=DummyBaseModel())
     old_updated = task1.updated_at
 
     # simulate a small delay then re-validate
@@ -50,70 +53,11 @@ def test_updated_at_is_set_and_refreshed():
     assert task2.updated_at > old_updated
 
 
-def test_serialization_of_input_output():
-    task = BaseTask(input=str, output=dict)
-    dumped = task.model_dump()
-    assert dumped["input"] == "builtins.str"
-    assert dumped["output"] == "builtins.dict"
-
 
 def test_error_field():
     task = BaseTask(error="Something went wrong")
     assert task.error == "Something went wrong"
 
-
-# Define a dummy class in this test module for testing
-class DummyClass:
-    pass
-
-
-def test_deserialize_builtin_type():
-    # Test that built-in types can be deserialized
-    t = deserialize_type("builtins.str")
-    assert t is str
-    t = deserialize_type("builtins.int")
-    assert t is int
-
-
-def test_deserialize_standard_library_type():
-    # Test a standard library class (datetime.datetime)
-    t = deserialize_type("datetime.datetime")
-    import datetime
-
-    assert t is datetime.datetime
-
-
-def test_deserialize_custom_class_in_test_module():
-    # Use __name__ to reference this test module
-    module_path = __name__
-    class_name = "DummyClass"
-    path = f"{module_path}.{class_name}"
-    t = deserialize_type(path)
-    assert t is DummyClass
-
-
-def test_empty_path_returns_none():
-    # Passing an empty string should return None
-    assert deserialize_type("") is None
-    assert deserialize_type(None) is None  # type: ignore
-
-
-def test_invalid_module_raises_import_error():
-    with pytest.raises(ImportError) as excinfo:
-        deserialize_type("nonexistent_module.Class")
-    assert "Cannot import name" in str(excinfo.value) or "No module named" in str(
-        excinfo.value
-    )
-
-
-def test_invalid_class_in_valid_module_raises_import_error():
-    # Valid module but class does not exist
-    module_path = "builtins"
-    with pytest.raises(ImportError) as excinfo:
-        deserialize_type(f"{module_path}.NonExistentClass")
-    assert "Cannot import name NonExistentClass from module builtins" in str(
-        excinfo.value
-    )
 
 
 def test_set_status():
@@ -121,8 +65,8 @@ def test_set_status():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status(status=TaskStatus.COMPLETED.value)
@@ -135,8 +79,8 @@ def test_set_status_to_created():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_created()
@@ -149,8 +93,8 @@ def test_set_status_to_started():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_started()
@@ -163,8 +107,8 @@ def test_set_status_to_in_progress():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_in_progress()
@@ -177,8 +121,8 @@ def test_set_status_to_completed():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_completed()
@@ -191,8 +135,8 @@ def test_set_status_to_failed():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_failed(error="test")
@@ -206,8 +150,8 @@ def test_set_status_to_retrying():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_retrying()
@@ -220,8 +164,8 @@ def test_set_status_to_canceled():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_canceled(error="test")
@@ -235,8 +179,8 @@ def test_set_status_to_timeout():
         name="Test Task",
         status=TaskStatus.STARTED,
         percentage=0.5,
-        input=str,
-        output=dict,
+        input=DummyBaseModel(),
+        output=DummyBaseModel(),
     )
     actual_updated_at = task.updated_at
     task.set_status_to_timeout(error="test")
