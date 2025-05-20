@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from zendata.tasks.base import BaseTask, TaskStatus, deserialize_type
+from zendata.data.tasks.base import BaseTask, TaskStatus, deserialize_type
 
 
 def test_base_task_creation():

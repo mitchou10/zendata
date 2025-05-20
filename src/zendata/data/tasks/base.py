@@ -1,4 +1,4 @@
-from typing import Type, Optional, Any, Dict
+from typing import Optional, Any, Dict
 from enum import Enum
 from datetime import datetime
 from uuid import uuid4
@@ -6,26 +6,8 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    field_validator,
     model_validator,
-    field_serializer,
 )
-import importlib
-from typing import Type, Any
-
-
-def deserialize_type(path: str) -> Type[Any]:
-    """
-    Reconstitue une classe à partir de son chemin 'module.submodule.ClassName'.
-    """
-    if not path:
-        return None
-    module_path, class_name = path.rsplit(".", 1)
-    module = importlib.import_module(module_path)
-    try:
-        return getattr(module, class_name)
-    except AttributeError:
-        raise ImportError(f"Cannot import name {class_name} from module {module_path}")
 
 
 class TaskStatus(str, Enum):
@@ -52,8 +34,9 @@ class BaseTask(BaseModel):
         description="Created timestamp",
     )
     updated_at: Optional[int] = Field(None, description="Last updated timestamp")
-    input: Type[Any] = Field(None, description="Input Type")
-    output: Type[Any] = Field(None, description="Output Type")
+    input: Optional[BaseModel] = Field(None, description="Input data")
+    output: Optional[BaseModel] = Field(None, description="Output data")
+    parameters: Optional[BaseModel] = Field(None, description="Parameters")
     error: Optional[str] = Field(None, description="Error message if task failed")
     extras: Dict[str, Any] = Field(
         default_factory=dict, description="Additional fields not defined in the model"
@@ -61,37 +44,11 @@ class BaseTask(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    @field_serializer("input")
-    def serialize_input(self, v: Type[Any], _info):
-        return f"{v.__module__}.{v.__name__}" if v else None
-
-    @field_serializer("output")
-    def serialize_output(self, v: Type[Any], _info):
-        return f"{v.__module__}.{v.__name__}" if v else None
-
-    @field_validator("input", "output", mode="before")
-    @classmethod
-    def check_is_type(cls, v, field):
-        if v is not None and not isinstance(v, type):
-            raise TypeError(f"{field.field_name} must be a type, got {type(v)}")
-        return v
-
+    
     @model_validator(mode="before")
     @classmethod
     def set_updated_at(cls, values):
         values["updated_at"] = int(datetime.now().timestamp())
-        return values
-
-    @model_validator(mode="before")
-    @classmethod
-    def deserialize_types(cls, values):
-
-        inp = values.get("input")
-        out = values.get("output")
-        if isinstance(inp, str):
-            values["input"] = deserialize_type(inp)
-        if isinstance(out, str):
-            values["output"] = deserialize_type(out)
         return values
 
     def update_updated_at(self):

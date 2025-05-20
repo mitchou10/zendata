@@ -1,6 +1,6 @@
 import pytest
 from zendata.tasks.task import Task
-from zendata.tasks.base import BaseTask
+from zendata.data.tasks.base import BaseTask
 
 
 def test_task_valid_input_output():
